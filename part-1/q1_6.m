@@ -93,7 +93,8 @@ end
 figure('Color', 'white');
 imagesc(time_vec, (1:N_tot)*dx, T_history);
 set(gca, 'YDir', 'normal');
-colorbar;
+c = colorbar;
+ylabel(c, 'Temperature [°C]');
 xlabel('Time [s]');
 ylabel('Position along the filament x [m]');
 colormap('jet');
