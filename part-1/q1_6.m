@@ -18,8 +18,8 @@ alpha = k / (rho * cp); % Thermal diffusivity [m^2/s]
 T_nozzle = 210;      % Extrusion temperature (nozzle) [°C]
 T_plate = 60;        % Heated bed temperature [°C]
 T_env = 20;          % Ambient air temperature [°C]
-h_plate = 15;        % Heat transfer coefficient with the plate [W/(m^2·K)]
-h_env = 10;          % Heat transfer coefficient with ambient air on 3 sides [W/(m^2·K)]
+h_plate = 15;        % Heat transfer coefficient with the plate [W/(m^2·°C)]
+h_env = 10;          % Heat transfer coefficient with ambient air on 3 sides [W/(m^2·°C)]
 
 % Spatial discretization
 N_tot = 100;         % Total number of cells for the entire path
@@ -27,35 +27,35 @@ dx = L_tot / N_tot;  % Spatial step [m]
 V = c^2 * dx;        % Volume of a single cell [m^3]
 C_th = rho * cp * V; % Thermal capacity of the cell [J/K]
 
-% 3. Time discretization and stability
+% Time discretization and stability
 t_print = L_tot / v_print; % Total printing time
 
-% Thermal stability conditions (CFL)
-dt_diff = (dx^2) / (2 * alpha);
-dt_conv = C_th / (h_plate * c * dx + 3 * h_env * c * dx);
-dt_movement = dx / v_print; %constraint on advancing 1 cell per step
-dt = 0.5 * min([dt_diff, dt_conv, dt_movement]); 
+dt_diff = (dx^2) / (2 * alpha); % CFL diffusion component
+dt_ext = C_th / (h_plate * c * dx + 3 * h_env * c * dx); % CFL external sources component
+dt_movement = dx / v_print; % constraint on advancing 1 cell per step
+dt = 0.5 * min([dt_diff, dt_ext, dt_movement]); % additional 0.5 term to guarantee stability
+% in the CFL conditions, dt_movement ensures the nozzle doesn't skip multiple spatial cells in a single time step
 
 t_cool_extra = 30;   % Cooling period after printing is complete
 t_max = t_print + t_cool_extra; % Total simulation time
 time_vec = 0:dt:t_max;
-num_steps = length(time_vec);
+n_time_steps = length(time_vec);
 
 % Simulation
 % Initialization
 T = T_env * ones(N_tot, 1);     % Cell temperature vector 
 N_active = 0;                   % Number of currently deposited cells
-T_history = T_env * ones(N_tot, num_steps); % Matrix to save the temperature history over time
+T_history = T_env * ones(N_tot, n_time_steps); % Matrix to save the temperature history over time
 
 % Loop
-for step = 1:num_steps
+for step = 1:n_time_steps
     t = time_vec(step);
     
     % growing domain phase
     if t <= t_print
         x_nozzle = v_print * t;
-        target_active = min(N_tot, ceil(x_nozzle / dx));
-        while N_active < target_active
+        current_nozzle_cell = min(N_tot, ceil(x_nozzle / dx));
+        while N_active < current_nozzle_cell
             N_active = N_active + 1;
             T(N_active) = T_nozzle;
         end
@@ -96,5 +96,5 @@ set(gca, 'YDir', 'normal');
 c = colorbar;
 ylabel(c, 'Temperature [°C]');
 xlabel('Time [s]');
-ylabel('Position along the filament x [m]');
+ylabel('Position along the filament [m]');
 colormap('jet');
