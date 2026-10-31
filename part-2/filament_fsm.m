@@ -8,7 +8,7 @@ function [stateTrace, outputTrace] = filament_fsm(events)
 %                 'F'    = spool finished
 %                 'done' = the action of the current state is completed
 %   stateTrace  : visited states q_0, q_1, ..., q_n
-%   outputTrace : output H(q_k) of each visited state (Moore machine)
+%   outputTrace : output lambda(q_k) of each visited state (Moore machine)
 %
 %   Inputs not enabled in a state leave the state unchanged (self-loop).
 %
@@ -26,7 +26,7 @@ n = numel(events);
 
 stateNames = {'q0 printing', 'q1 stop-save', 'q2 move-to-wipe', 'q3 wipe', ...
               'q4 heater-off', 'q5 load', 'q6 heater-on', 'q7 resume'};
-H = {'print', ...
+lambda = {'print', ...
      'stop printing and save (x,y)', ...
      'move head to wipe tower (xp,yp) = (0,0)', ...
      'print on wipe tower to remove excess filament', ...
@@ -50,7 +50,7 @@ q = 0;                              % initial state q0
 stateTrace  = cell(n+1,1);
 outputTrace = cell(n+1,1);
 stateTrace{1}  = stateNames{q+1};
-outputTrace{1} = H{q+1};
+outputTrace{1} = lambda{q+1};
 for k = 1:n
     switch events{k}
         case 'C'
@@ -64,6 +64,6 @@ for k = 1:n
     end
     q = delta(q+1, s);
     stateTrace{k+1}  = stateNames{q+1};
-    outputTrace{k+1} = H{q+1};
+    outputTrace{k+1} = lambda{q+1};
 end
 end
