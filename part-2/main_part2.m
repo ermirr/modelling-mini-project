@@ -20,11 +20,13 @@ fprintf('  states: %s\n', strjoin(states2', ' -> '));
 %% Q2.2 - Head-parked detector (DFA)
 % each row is a sample [M m]: M = 1 (H), 2 (V); m = 1 (+), 0 (0)
 H = 1; V = 2;
-tests = { [V 1; V 0; H 1; H 0],               '(V,+)(V,0)(H,+)(H,0)';
-          [V 1; V 1; V 0; H 1; H 1; H 0],     '(V,+)(V,+)(V,0)(H,+)(H,+)(H,0)';
+tests = { [H 1; V 1; H 1; H 0; V 1; V 0],     '(H,+)(V,+)(H,+)(H,0)(V,+)(V,0)';
+          [V 1; V 0; H 1; H 0],               '(V,+)(V,0)(H,+)(H,0)';
           [V 0; H 0],                         '(V,0)(H,0)';
           [V 0; H 0; V 0],                    '(V,0)(H,0)(V,0)';
-          [H 1; V 1; H 1; H 0; V 1; V 0],     '(H,+)(V,+)(H,+)(H,0)(V,+)(V,0)'
+          [V 0; H 0; H 1],                    '(V,0)(H,0)(H,+)';
+          [V 0; H 0; V 1; V 1],               '(V,0)(H,0)(V,+)(V,+)';
+          [H 0; V 1; H 0; V 0],               '(H,0)(V,+)(H,0)(V,0)'
           };
 fprintf('\nQ2.2\n');
 for i = 1:size(tests,1)
@@ -32,3 +34,4 @@ for i = 1:size(tests,1)
     fprintf('  %-34s parked = %d   run: %s\n', tests{i,2}, parked, ...
             sprintf('q%d ', run));
 end
+ 
