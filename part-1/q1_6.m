@@ -1,12 +1,12 @@
 clc;
-clear; 
+clear;
 close all;
 
 % Parameters
-c = 0.002;           % filament square section [m]
-A = c^2;             % filament square area [m^2]
-L_tot = 0.5;         % Total length of the print [m]
-v_print = 0.05;      % nozzle's print velocity [m/s]
+c = 0.002;      % filament square section [m]
+A = c^2;        % filament square area [m^2]
+L_tot = 0.5;    % Total length of the print [m]
+v_print = 0.05; % nozzle's print velocity [m/s]
 
 % filament's material parameters (Assumed the filament is made of PLA)
 rho = 1245;             % Density [kg/m^3]
@@ -15,11 +15,11 @@ k = 0.16;               % Thermal conductivity [W/(m·K)]
 alpha = k / (rho * cp); % Thermal diffusivity [m^2/s]
 
 % Boundary and environmental parameters
-T_nozzle = 210;      % Extrusion temperature (nozzle) [°C]
-T_plate = 60;        % Heated bed temperature [°C]
-T_env = 20;          % Ambient air temperature [°C]
-h_plate = 15;        % Heat transfer coefficient with the plate [W/(m^2·°C)]
-h_env = 10;          % Heat transfer coefficient with ambient air on 3 sides [W/(m^2·°C)]
+T_nozzle = 210; % Extrusion temperature (nozzle) [°C]
+T_plate = 60;   % Heated bed temperature [°C]
+T_env = 20;     % Ambient air temperature [°C]
+h_plate = 15;   % Heat transfer coefficient with the plate [W/(m^2·°C)]
+h_env = 10;     % Heat transfer coefficient with ambient air on 3 sides [W/(m^2·°C)]
 
 % Spatial discretization
 N_tot = 100;         % Total number of cells for the entire path
@@ -43,8 +43,8 @@ n_time_steps = length(time_vec);
 
 % Simulation
 % Initialization
-T = T_env * ones(N_tot, 1);     % Cell temperature vector 
-N_active = 0;                   % Number of currently deposited cells
+T = T_env * ones(N_tot, 1); % Cell temperature vector 
+N_active = 0;               % Number of currently deposited cells
 T_history = T_env * ones(N_tot, n_time_steps); % Matrix to save the temperature history over time
 
 % Loop

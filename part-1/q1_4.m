@@ -9,9 +9,9 @@ Rm = 2;       % [ohm]
 Jm = 5*10^-6; % [Kg*m^2]
 Km = 0.04;    % [N*m/A]
 m = 0.2;      % [Kg]
-mur = 0.03;   % [-]
-mux = 0.035;  % [-]
-muy = 0.04;   % [-]
+mur = 0.03;   % [N*m*s/rad]
+mux = 0.035;  % [N*s/m]
+muy = 0.04;   % [N*s/m]
 x_dim = 0.2;  % [m]
 y_dim = 0.2;  % [m]
 x0 = 0;       % [m]
@@ -58,10 +58,10 @@ sys_y.StateName = {'y', 'dot_y', 'i_y'};
 sys_y.InputName = {'u_y'};
 
 % ellipse
-t = linspace(0, 4*pi, 2000);
-dt = t(2) - t(1);
 omega = 0.5;
-A_ell = 0.1;
+t = linspace(0, 2*pi/omega, 2000);
+dt = t(2) - t(1);
+A_ell = 0.08;
 B_ell = 0.05;
 
 x_ell = x_dim / 2 + A_ell * cos(omega * t);
@@ -89,22 +89,21 @@ x_sim_ell = lsim(sys_x, ux_ell, t, [x_ell(1); 0; 0]);
 y_sim_ell = lsim(sys_y, uy_ell, t, [y_ell(1); 0; 0]);
 
 % star
-omega_star = 0.5; 
 R_star = 0.025;   
 
-x_star = x_dim / 2 + R_star * (2*cos(omega_star * t) + 0.5*cos(4*omega_star * t) + 0.5*cos(6*omega_star * t));
-dx_star = R_star * omega_star * (-2*sin(omega_star * t) - 2*sin(4*omega_star * t) - 3*sin(6*omega_star * t));
-ddx_star = R_star * omega_star^2 * (-2*cos(omega_star * t) - 8*cos(4*omega_star * t) - 18*cos(6*omega_star * t));
-dddx_star = R_star * omega_star^3 * (2*sin(omega_star * t) + 32*sin(4*omega_star * t) + 108*sin(6*omega_star * t));
+x_star = x_dim / 2 + R_star * (2*cos(omega * t) + 0.5*cos(4*omega * t) + 0.5*cos(6*omega * t));
+dx_star = R_star * omega * (-2*sin(omega * t) - 2*sin(4*omega * t) - 3*sin(6*omega * t));
+ddx_star = R_star * omega^2 * (-2*cos(omega * t) - 8*cos(4*omega * t) - 18*cos(6*omega * t));
+dddx_star = R_star * omega^3 * (2*sin(omega * t) + 32*sin(4*omega * t) + 108*sin(6*omega * t));
 
 ix_star = (2 / (rm * Km)) * (Jeq * ddx_star + Bx * dx_star);
 dix_star = (2 / (rm * Km)) * (Jeq * dddx_star + Bx * ddx_star);
 ux_star = Lm * dix_star + Rm * ix_star + (2 * Km / rm) * dx_star;
 
-y_star = y_dim / 2 + R_star * (2*sin(omega_star * t) - 0.5*sin(4*omega_star * t) + 0.5*sin(6*omega_star * t));
-dy_star = R_star * omega_star * (2*cos(omega_star * t) - 2*cos(4*omega_star * t) + 3*cos(6*omega_star * t));
-ddy_star = R_star * omega_star^2 * (-2*sin(omega_star * t) + 8*sin(4*omega_star * t) - 18*sin(6*omega_star * t));
-dddy_star = R_star * omega_star^3 * (-2*cos(omega_star * t) + 32*cos(4*omega_star * t) - 108*cos(6*omega_star * t));
+y_star = y_dim / 2 + R_star * (2*sin(omega * t) - 0.5*sin(4*omega * t) + 0.5*sin(6*omega * t));
+dy_star = R_star * omega * (2*cos(omega * t) - 2*cos(4*omega * t) + 3*cos(6*omega * t));
+ddy_star = R_star * omega^2 * (-2*sin(omega * t) + 8*sin(4*omega * t) - 18*sin(6*omega * t));
+dddy_star = R_star * omega^3 * (-2*cos(omega * t) + 32*cos(4*omega * t) - 108*cos(6*omega * t));
 
 iy_star = (2 / (rm * Km)) * (Jeq * ddy_star + By * dy_star);
 diy_star = (2 / (rm * Km)) * (Jeq * dddy_star + By * ddy_star);
@@ -120,26 +119,35 @@ y_sim_star = lsim(sys_y, uy_star, t, [y_star(1); dy_star(1); iy_star(1)]);
 figure('Name','Q1.4 Trajectories & Inputs','NumberTitle','off');
 
 subplot(2,2,1);
-plot(x_sim_ell, y_sim_ell, 'b', 'LineWidth', 1);
-title('Elliptic Path'); xlabel('X [m]'); ylabel('Y [m]');
-xlim([0, x_dim]); ylim([0, y_dim]);
+plot(x_sim_ell * 1000, y_sim_ell * 1000, 'b', 'LineWidth', 1);
+title('Elliptic Path');
+xlabel('X [mm]');
+ylabel('Y [mm]');
+xlim([0, x_dim * 1000]);
+ylim([0, y_dim * 1000]);
 axis equal; grid on;
 
 subplot(2,2,2);
 plot(t, um_l_ell, 'g', t, um_r_ell, 'm', 'LineWidth', 1.2);
-title('Motor Voltages (Ellipse)'); xlabel('Time [s]'); ylabel('Voltage [V]');
+title('Motor Voltages (Ellipse)');
+xlabel('Time [s]');
+ylabel('Voltage [V]');
 legend('u_{m,l}', 'u_{m,r}');
 grid on;
 
 subplot(2,2,3);
-plot(x_sim_star, y_sim_star, 'r', 'LineWidth', 1);
-title('Star Path'); xlabel('X [m]'); ylabel('Y [m]');
-xlim([0, x_dim]); ylim([0, y_dim]);
+plot(x_sim_star * 1000, y_sim_star * 1000, 'r', 'LineWidth', 1);
+title('Star Path');
+xlabel('X [mm]');
+ylabel('Y [mm]');
+xlim([0, x_dim * 1000]);
+ylim([0, y_dim * 1000]);
 axis equal; grid on;
 
 subplot(2,2,4);
 plot(t, um_l_star, 'g', t, um_r_star, 'm', 'LineWidth', 1.2);
-title(sprintf('Motor Voltages (Star)', omega_star)); 
-xlabel('Time [s]'); ylabel('Voltage [V]');
+title(sprintf('Motor Voltages (Star)', omega)); 
+xlabel('Time [s]');
+ylabel('Voltage [V]');
 legend('u_{m,l}', 'u_{m,r}');
 grid on;
