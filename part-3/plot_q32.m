@@ -1,7 +1,7 @@
 function plot_q32(L, P, mem, outdir)
 % PLOT_Q32  Figures of the square-drawing simulation (Q3.2).
 if nargin < 4, outdir = '.'; end
-if ~exist(outdir, 'dir'), mkdir(outdir); end
+if ~isfolder(outdir), mkdir(outdir); end
 S = sq_modes();
 t = L.t;  X = L.xi;  q = L.q;
 wl = (X(:,2) + X(:,5))/P.rm;   wr = (X(:,2) - X(:,5))/P.rm;

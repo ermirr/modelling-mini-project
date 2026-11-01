@@ -1,7 +1,7 @@
 function plot_q31(L, P, outdir)
 % PLOT_Q31  Figures of the filament-replacement simulation (Q3.1).
 if nargin < 3, outdir = '.'; end
-if ~exist(outdir, 'dir'), mkdir(outdir); end
+if ~isfolder(outdir), mkdir(outdir); end
 Q = fr_modes();
 % the log is decimated for figures 1 and 3 (keeps the PDF light)
 t = L.t;  X = L.xi;  q = L.q;
