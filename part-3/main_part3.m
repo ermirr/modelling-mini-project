@@ -1,6 +1,5 @@
 % MAIN_PART3  Part 3: hybrid systems.
 clear; clc; close all;
-if ~exist('figures', 'dir'), mkdir('figures'); end
 
 %% Q3.1 - Filament replacement
 % Printing the ellipse of Q1.4 with an almost empty spool: the spool
